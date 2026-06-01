@@ -6,7 +6,6 @@
   <p><strong>Self-hosted Kubernetes Lab for Hands-on Learning</strong></p>
 
   <p>
-    <a href="https://hub.docker.com/r/zeborg/kubekosh"><img src="https://img.shields.io/docker/pulls/zeborg/kubekosh?style=flat-square&logo=docker&label=Docker%20Hub" alt="Docker Hub" /></a>
     <img src="https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square" alt="License" />
     <img src="https://img.shields.io/badge/platforms-amd64%20%7C%20arm64-lightgrey?style=flat-square" alt="Platforms" />
   </p>
@@ -21,7 +20,7 @@ KubeKosh runs a real [K3s](https://k3s.io/) Kubernetes cluster inside a single D
 **Prerequisite:** [Docker](https://docs.docker.com/get-docker/)
 
 ```bash
-docker run -itd --name kubekosh --privileged -p 7554:80 zeborg/kubekosh:latest
+docker run -itd --name kubekosh --privileged -p 7554:80 kubekosh:latest
 ```
 
 Open **http://localhost:7554** — wait ~30 seconds for the *Cluster Ready* indicator to turn green.
@@ -30,11 +29,35 @@ Open **http://localhost:7554** — wait ~30 seconds for the *Cluster Ready* indi
 >
 > Page not loading (e.g. **`ERR_EMPTY_RESPONSE`**), or running **rootless Docker**? See [Troubleshooting](#troubleshooting).
 
+### Rootless Docker setup (one-time)
+
+If your Docker daemon is **rootless** (`docker info -f '{{.SecurityOptions}}'` lists `rootless`),
+k3s needs the cgroup v2 `cpuset` controller, which rootless daemons don't delegate by default.
+Run this **once** on the host, then start the container normally
+([details](#running-under-rootless-docker-experimental)). On a rootful daemon, skip this.
+
+```bash
+sudo mkdir -p /etc/systemd/system/user@.service.d
+printf '[Service]\nDelegate=cpu cpuset io memory pids\n' | \
+  sudo tee /etc/systemd/system/user@.service.d/delegate.conf
+sudo systemctl daemon-reload && sudo systemctl daemon-reexec
+systemctl --user restart docker
+cat /sys/fs/cgroup/user.slice/user-$(id -u).slice/cgroup.controllers   # should list cpuset
+```
+
+**Why it's necessary:** rootless Docker runs the daemon under your systemd **user** slice, which
+by default is delegated only the `cpu`, `memory`, and `pids` cgroup controllers — **not `cpuset`**.
+k3s's kubelet requires `cpuset` to place pods onto CPUs, so without this delegation it dies on
+startup with `failed to find cpuset cgroup (v2)`, the entrypoint exits, and the container just
+restart-loops (nothing ever listens on port 80). The `delegate.conf` drop-in tells systemd to also
+delegate `cpuset` (and `io`) down to your user, making the controller visible **inside** the
+container so k3s can boot. A rootful daemon already exposes `cpuset`, so it doesn't need this step.
+
 ### Persist Progress
 
 ```bash
 docker run -itd --name kubekosh --privileged -p 7554:80 \
-  -v <your_custom_directory>:/data zeborg/kubekosh:latest
+  -v <your_custom_directory>:/data kubekosh:latest
 ```
 
 Progress is stored in SQLite at `/data/progress.db` inside the container. You may mount your own custom directory to `/data` to persist the progress across container restarts.

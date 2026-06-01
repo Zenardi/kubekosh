@@ -1,10 +1,10 @@
 name: Release to Docker Hub
 
-on:
-  push:
-    tags:
-      - "v*.*.*" # stable
-      - "v*.*.*-*" # pre-release
+# on:
+#   push:
+#     tags:
+#       - "v*.*.*" # stable
+#       - "v*.*.*-*" # pre-release
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
