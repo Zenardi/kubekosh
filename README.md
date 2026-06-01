@@ -27,6 +27,8 @@ docker run -itd --name kubekosh --privileged -p 7554:80 zeborg/kubekosh:latest
 Open **http://localhost:7554** — wait ~30 seconds for the *Cluster Ready* indicator to turn green.
 
 > `--privileged` is required — K3s needs access to kernel namespaces and cgroups.
+>
+> Page not loading (e.g. **`ERR_EMPTY_RESPONSE`**), or running **rootless Docker**? See [Troubleshooting](#troubleshooting).
 
 ### Persist Progress
 
@@ -43,6 +45,79 @@ Progress is stored in SQLite at `/data/progress.db` inside the container. You ma
 docker build -t kubekosh .
 # multi-platform
 docker buildx build --platform linux/amd64,linux/arm64 -t kubekosh .
+```
+
+---
+
+## Running under rootless Docker (experimental)
+
+KubeKosh runs a real Kubernetes node, so it expects a **rootful** Docker daemon. On
+the standard daemon the [Quick Start](#quick-start) command works as-is.
+
+Under **rootless Docker** the container runs in a user namespace, which needs a
+one-time host setup. The image **auto-detects the user namespace** and enables the
+required kubelet/kube-proxy flags (`KubeletInUserNamespace`, conntrack opt-out)
+automatically — you only have to delegate the cgroup v2 controllers to your user:
+
+```bash
+# 1. One-time: delegate cpu/cpuset/io/memory/pids to your systemd user slice (needs sudo once)
+sudo mkdir -p /etc/systemd/system/user@.service.d
+printf '[Service]\nDelegate=cpu cpuset io memory pids\n' | \
+  sudo tee /etc/systemd/system/user@.service.d/delegate.conf
+sudo systemctl daemon-reload && sudo systemctl daemon-reexec
+systemctl --user restart docker        # restarts your rootless containers
+
+# 2. Verify cpuset is now delegated (should list "cpuset")
+cat /sys/fs/cgroup/user.slice/user-$(id -u).slice/cgroup.controllers
+
+# 3. Run normally (rootless daemon)
+docker run -itd --name kubekosh --privileged -p 7554:80 kubekosh:latest
+```
+
+**Requirements:** cgroup v2, systemd ≥ 244, and the rootless networking tools
+(`slirp4netns`, `rootlesskit`) — all standard with a rootless Docker install.
+
+> **Security upside:** because a rootless container is confined to your unprivileged
+> user, a container escape lands as *you*, not host root — a meaningfully smaller blast
+> radius than rootful `--privileged`. **Caveat:** k3s-in-rootless-Docker is not an
+> upstream-tested configuration; flannel/iptables inside a user namespace can need
+> extra tweaks on some hosts.
+
+---
+
+## Troubleshooting
+
+**The UI won't load / `ERR_EMPTY_RESPONSE`**
+The container exited during startup (almost always k3s failing to start), so nothing is
+listening on port 80. Check the logs — the last lines point to one of the causes below:
+
+```bash
+docker logs kubekosh
+```
+
+**`Error: failed to find cpuset cgroup (v2)`**
+Docker isn't delegating the cgroup v2 `cpuset` controller to the container.
+- **Rootless Docker** — delegate the controllers to your user: see [Running under rootless Docker](#running-under-rootless-docker-experimental).
+- **Rootful Docker** — run with the host cgroup namespace (or switch the daemon to the `cgroupfs` cgroup driver):
+  ```bash
+  docker run -d --name kubekosh --privileged --cgroupns=host \
+    -v /sys/fs/cgroup:/sys/fs/cgroup:rw -p 7554:80 kubekosh:latest
+  ```
+
+**`open /dev/kmsg: operation not permitted` (or `running in UserNS`)**
+You're on **rootless Docker** (or a userns-remapped daemon), so `--privileged` doesn't grant
+real root. Either use a rootful daemon (`sudo docker run …`) or follow the
+[rootless setup](#running-under-rootless-docker-experimental) — the image auto-enables the
+required kubelet flags once cgroups are delegated.
+
+**Container exits immediately**
+You almost certainly omitted `--privileged` — K3s requires it.
+
+**"Cluster Ready" never turns green**
+k3s can take up to a minute on first boot. Check the node directly:
+
+```bash
+docker exec kubekosh kubectl get nodes
 ```
 
 ---

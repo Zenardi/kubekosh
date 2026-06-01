@@ -15,9 +15,16 @@ LOG "Starting KubeKosh..."
 #
 # Fix (same as k3d): move all current processes to a leaf cgroup first, then
 # enable all available controllers in the root's subtree_control.
-if [ -f /sys/fs/cgroup/cgroup.controllers ]; then
+#
+# Only attempt this when the cgroup root is writable AND cpuset isn't already
+# delegated. When run with `--cgroupns=host` the host already exposes cpuset and
+# /sys/fs/cgroup is read-only, so this block is skipped (it would otherwise fail
+# on mkdir). Every step is guarded so `set -e` can never abort startup here.
+if [ -f /sys/fs/cgroup/cgroup.controllers ] \
+   && [ -w /sys/fs/cgroup/cgroup.subtree_control ] \
+   && ! grep -qw cpuset /sys/fs/cgroup/cgroup.controllers; then
   LOG "Configuring cgroupv2 delegation..."
-  mkdir -p /sys/fs/cgroup/init
+  mkdir -p /sys/fs/cgroup/init 2>/dev/null || true
   # Move every process currently in the root cgroup into the leaf
   xargs -rn1 < /sys/fs/cgroup/cgroup.procs > /sys/fs/cgroup/init/cgroup.procs 2>/dev/null || true
   # Enable all available controllers for child cgroups (e.g. k8s.io, kubepods)
@@ -25,6 +32,52 @@ if [ -f /sys/fs/cgroup/cgroup.controllers ]; then
       < /sys/fs/cgroup/cgroup.controllers \
       > /sys/fs/cgroup/cgroup.subtree_control 2>/dev/null || true
   OK "cgroupv2 delegation configured"
+fi
+
+# ── Detect user namespace (rootless Docker / userns-remap) ───────────────────
+# A rootful container maps the full uid range (0 0 4294967295); a userns maps
+# uid 0 to a high host uid. Inside a userns the kubelet must be told so it skips
+# the oomWatcher / /dev/kmsg (inaccessible), and kube-proxy must skip the
+# conntrack sysctl writes that fail without real root.
+USERNS=0
+if [ -f /proc/self/uid_map ]; then
+  read -r _u_inside _u_outside _u_count < /proc/self/uid_map || true
+  if [ "${_u_outside:-0}" != "0" ] || [ "${_u_count:-0}" != "4294967295" ]; then
+    USERNS=1
+  fi
+fi
+
+K3S_USERNS_ARGS=()
+if [ "$USERNS" = "1" ]; then
+  LOG "User namespace detected (rootless Docker) — enabling rootless kubelet/kube-proxy args."
+  K3S_USERNS_ARGS=(
+    --kubelet-arg=feature-gates=KubeletInUserNamespace=true
+    --kube-proxy-arg=conntrack-max-per-core=0
+  )
+fi
+
+# k3s/kubelet require the cgroup v2 cpuset controller. If it isn't available to
+# this container, fail fast with actionable guidance instead of letting k3s die
+# later with a cryptic "failed to find cpuset cgroup (v2)".
+if [ -f /sys/fs/cgroup/cgroup.controllers ] \
+   && ! grep -qw cpuset /sys/fs/cgroup/cgroup.controllers; then
+  ERR "cgroup v2 'cpuset' controller is not available to this container — k3s cannot start."
+  if [ "$USERNS" = "1" ]; then
+    ERR "You're on rootless Docker. Delegate cgroup controllers to your user (one-time, sudo):"
+    ERR "  Create /etc/systemd/system/user@.service.d/delegate.conf containing:"
+    ERR "      [Service]"
+    ERR "      Delegate=cpu cpuset io memory pids"
+    ERR "  Then: sudo systemctl daemon-reload && sudo systemctl daemon-reexec"
+    ERR "        systemctl --user restart docker     # then re-run this container"
+    ERR "  (Full steps: README -> 'Running under rootless Docker'.)"
+  else
+    ERR "Your Docker daemon is not delegating cpuset to containers. Re-run with the host"
+    ERR "cgroup namespace:"
+    ERR "  docker run -d --name kubekosh --privileged --cgroupns=host \\"
+    ERR "    -v /sys/fs/cgroup:/sys/fs/cgroup:rw -p 7554:80 kubekosh:latest"
+    ERR "(or switch the Docker daemon to the cgroupfs cgroup driver and restart Docker)."
+  fi
+  exit 1
 fi
 
 # ── 1. Start k3s server ──────────────────────────────────────────────────────
@@ -39,6 +92,7 @@ k3s server \
   --snapshotter=native \
   --kubelet-arg=cgroups-per-qos=false \
   --kubelet-arg=enforce-node-allocatable="" \
+  "${K3S_USERNS_ARGS[@]}" \
   &>/var/log/k3s.log &
 K3S_PID=$!
 
