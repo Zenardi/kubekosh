@@ -1,0 +1,32 @@
+# KubeKosh — single-container Kubernetes lab.
+#
+#   docker compose up -d --build      # build from source and run
+#   docker compose logs -f            # watch k3s + API startup
+#   docker compose ps                 # STATUS shows (healthy) once the node is Ready
+#   docker compose down               # stop (named volume keeps progress)
+#
+# Requires a ROOTFUL Docker daemon. On rootless Docker, first delegate cgroup
+# controllers to your user (see README -> "Running under rootless Docker"); the
+# image auto-detects the user namespace and enables the needed kubelet flags.
+# Until that's done the entrypoint exits with guidance instead of starting k3s.
+
+services:
+  kubekosh:
+    build: .
+    image: kubekosh:latest
+    # To skip building and use the published image instead, comment out `build:`
+    # above and set:  image: zeborg/kubekosh:latest
+    container_name: kubekosh
+    privileged: true            # required — K3s needs kernel namespaces + cgroups
+    ports:
+      - "7554:80"               # open http://localhost:7554
+    volumes:
+      - kubekosh-data:/data     # persists SQLite progress at /data/progress.db
+    # Retry a few times for transient crashes, then stop — so a permanent
+    # misconfig (e.g. missing cgroup delegation) fails fast instead of looping
+    # forever. Use `always`/`unless-stopped` if you want reboot survival.
+    restart: on-failure:5
+    # Healthcheck is defined in the image (Dockerfile HEALTHCHECK).
+
+volumes:
+  kubekosh-data:
