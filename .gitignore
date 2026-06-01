@@ -1,0 +1,28 @@
+# Dependencies (install with `npm install` in backend/ and frontend/)
+node_modules/
+
+# Frontend build output
+frontend/dist/
+
+# SQLite progress store / mounted data
+*.db
+*.db-journal
+*.db-wal
+/data/
+
+# Logs & debug
+*.log
+npm-debug.log*
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Claude Code — keep shared config & skills tracked; ignore personal overrides
+.claude/settings.local.json
+CLAUDE.local.md
+
+# OS / editor cruft
+.DS_Store
+*.swp
