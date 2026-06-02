@@ -1,63 +1,83 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Dark theme (default) ────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════════════════
+   KubeKosh design tokens — "Composio" system (DESIGN.md)
+   Near-black canvas · single electric-blue voltage · brightness-step elevation
+   · JetBrains Mono on code · spotlight-glow atmosphere.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Dark theme (default / canonical) ─────────────────────────────────────── */
 :root {
-  --bg:         #0c0f14;
-  --surface:    #131720;
-  --surface2:   #1a2030;
-  --surface3:   #212840;
-  --border:     #252d42;
-  --border2:    #2e3a55;
+  /* Surfaces — brightness-step ladder, no drop shadows */
+  --bg:         #0f0f0f;   /* canvas — page floor */
+  --bg-deep:    #000000;   /* canvas-deep — terminal & code only */
+  --surface:    #181818;   /* surface-card */
+  --surface2:   #222222;   /* surface-card-elevated */
+  --surface3:   #2a2a2a;   /* surface-strong */
+  --border:     #222222;   /* hairline */
+  --border2:    #333333;   /* hairline-strong */
 
-  --green:      #39d98a;
-  --green-dim:  rgba(57,217,138,0.12);
-  --blue:       #4dabf7;
-  --blue-dim:   rgba(77,171,247,0.10);
-  --amber:      #fcc419;
-  --amber-dim:  rgba(252,196,25,0.10);
-  --red:        #ff6b6b;
-  --red-dim:    rgba(255,107,107,0.10);
-  --purple:     #9775fa;
-  --purple-dim: rgba(151,117,250,0.10);
+  /* Brand voltage — deep electric blue (#0007cd). One color, scarce. */
+  --primary:        #0007cd;            /* filled primary CTAs */
+  --primary-active: #0005a3;            /* pressed */
+  --primary-glow:   #1a26ff;            /* radial atmospheric glow */
+  --primary-dim:    rgba(26,38,255,0.12);
+  /* Readable same-hue accent for text / active states on dark */
+  --blue:       #4f8bff;
+  --blue-dim:   rgba(79,139,255,0.12);
 
-  --text:       #e2e8f4;
-  --text-2:     #8899b8;
-  --text-3:     #4d5f80;
+  /* Semantic only — never as brand */
+  --green:      #33d17a;   --green-dim:  rgba(51,209,122,0.12);   /* success */
+  --amber:      #fcc419;   --amber-dim:  rgba(252,196,25,0.10);   /* warning */
+  --red:        #ff4d4d;   --red-dim:    rgba(255,77,77,0.10);    /* error */
+  --purple:     #7b3aed;   --purple-dim: rgba(123,58,237,0.12);   /* illustrative */
+  --cyan:       #00d4ff;                                          /* illustrative */
 
-  --mono:       'IBM Plex Mono', monospace;
-  --sans:       'Epilogue', sans-serif;
+  /* Text */
+  --text:       #ffffff;   /* ink / body-strong */
+  --text-2:     #a8a8a8;   /* body */
+  --text-3:     #777777;   /* muted */
 
-  --radius:     8px;
-  --radius-lg:  12px;
+  /* Type */
+  --mono:       'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --sans:       'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  --term-bg:    #0d1117;
+  /* Radii — compact, developer-ergonomic */
+  --radius:     8px;    /* CTAs, inputs */
+  --radius-lg:  12px;   /* cards, code, terminal panes */
+  --radius-xl:  16px;   /* feature cards */
+
+  --term-bg:    #000000; /* canvas-deep */
 }
 
-/* ── Light theme ─────────────────────────────────────────────────────────── */
+/* ── Light theme — light counterpart, same blue voltage ───────────────────── */
 :root[data-theme="light"] {
-  --bg:         #f0f4f8;
+  --bg:         #f4f5f7;
+  --bg-deep:    #ffffff;
   --surface:    #ffffff;
-  --surface2:   #f5f7fa;
-  --surface3:   #eaecf1;
-  --border:     #d6dce8;
-  --border2:    #c0c9d8;
+  --surface2:   #f1f2f5;
+  --surface3:   #e7e9ee;
+  --border:     #e2e5ea;
+  --border2:    #cbd0da;
 
-  --green:      #0d9955;
-  --green-dim:  rgba(13,153,85,0.10);
-  --blue:       #1976d2;
-  --blue-dim:   rgba(25,118,210,0.10);
-  --amber:      #b45309;
-  --amber-dim:  rgba(180,83,9,0.10);
-  --red:        #dc2626;
-  --red-dim:    rgba(220,38,38,0.10);
-  --purple:     #7c3aed;
-  --purple-dim: rgba(124,58,237,0.10);
+  --primary:        #0007cd;
+  --primary-active: #0005a3;
+  --primary-glow:   #4f8bff;
+  --primary-dim:    rgba(0,7,205,0.08);
+  --blue:       #0a4bd8;
+  --blue-dim:   rgba(10,75,216,0.08);
 
-  --text:       #111827;
-  --text-2:     #374151;
+  --green:      #0d9955;   --green-dim:  rgba(13,153,85,0.10);
+  --amber:      #b45309;   --amber-dim:  rgba(180,83,9,0.10);
+  --red:        #dc2626;   --red-dim:    rgba(220,38,38,0.10);
+  --purple:     #7c3aed;   --purple-dim: rgba(124,58,237,0.10);
+  --cyan:       #0891b2;
+
+  --text:       #0f0f12;
+  --text-2:     #444b57;
   --text-3:     #6b7280;
 
-  --term-bg:    #f6f8fa;
+  --term-bg:    #0f0f12;
 }
 
 html, body, #root {
@@ -72,46 +92,73 @@ body {
   color: var(--text);
   font-size: 14px;
   line-height: 1.5;
+  letter-spacing: -0.1px;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   transition: background 0.25s ease, color 0.25s ease;
 }
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
+/* Spotlight-glow atmosphere — a single radial blue voltage centered up top,
+   behind everything. This is the Composio signature backdrop. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(70% 55% at 50% -8%, color-mix(in srgb, var(--primary-glow) 16%, transparent), transparent 70%);
+  opacity: 0.9;
+}
+:root[data-theme="light"] body::before { opacity: 0.5; }
+#root { position: relative; z-index: 1; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
-/* Markdown styles */
-.md h1,.md h2,.md h3 { font-family: var(--sans); font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
-.md h2 { font-size: 18px; color: var(--text); }
+::selection { background: color-mix(in srgb, var(--primary-glow) 40%, transparent); color: #fff; }
+
+/* Reusable spotlight glow for hero-ish surfaces */
+.spotlight { position: relative; }
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: -40% -10% auto -10%;
+  height: 240px;
+  pointer-events: none;
+  background: radial-gradient(50% 100% at 50% 0%, color-mix(in srgb, var(--primary-glow) 22%, transparent), transparent 70%);
+  z-index: 0;
+}
+
+/* ── Markdown ─────────────────────────────────────────────────────────────── */
+.md h1,.md h2,.md h3 { font-family: var(--sans); font-weight: 600; margin-bottom: 12px; line-height: 1.2; letter-spacing: -0.5px; color: var(--text); }
+.md h2 { font-size: 18px; }
 .md h3 { font-size: 15px; color: var(--text-2); }
 .md p { margin-bottom: 12px; color: var(--text-2); line-height: 1.7; }
 .md p:last-child { margin-bottom: 0; }
-.md code {
+.md a { color: var(--blue); text-decoration: none; }
+.md a:hover { text-decoration: underline; }
+
+/* Inline code — surface-strong chip, JetBrains Mono */
+.md code,
+.inline-code {
   font-family: var(--mono);
   font-size: 12px;
   background: var(--surface3);
-  color: var(--green);
+  color: var(--text);
   padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid var(--border);
 }
 
-/* Inline code rendered by InlineMd (outside .md wrapper) */
-.inline-code {
-  font-family: var(--mono);
-  font-size: 12px;
-  background: var(--surface3);
-  color: var(--green);
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-}
+/* Code blocks live on canvas-deep (#000) — terminal/code surface */
 .md pre {
-  background: var(--bg);
+  background: var(--bg-deep);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
+  border-radius: var(--radius-lg);
+  padding: 16px;
   margin: 12px 0;
   overflow-x: auto;
 }
@@ -119,7 +166,7 @@ body {
   background: none;
   border: none;
   padding: 0;
-  color: var(--green);
+  color: var(--text-2);
   font-size: 12px;
   line-height: 1.8;
 }
@@ -127,16 +174,15 @@ body {
 .md li { margin-bottom: 4px; line-height: 1.6; }
 .md strong { color: var(--text); font-weight: 600; }
 .md blockquote {
-  border-left: 3px solid var(--blue);
+  border-left: 2px solid var(--primary-glow);
   padding: 8px 14px;
-  background: var(--blue-dim);
+  background: var(--primary-dim);
   border-radius: 0 var(--radius) var(--radius) 0;
   margin: 12px 0;
   color: var(--text-2);
-  font-style: italic;
 }
 
-/* Animations */
+/* ── Animations ───────────────────────────────────────────────────────────── */
 @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 @keyframes spin { to{transform:rotate(360deg)} }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }

@@ -90,7 +90,7 @@
 }
 
 .tab.active {
-  background: var(--bdim, rgba(63,185,80,0.10));
+  background: var(--bdim, var(--blue-dim));
   border-color: color-mix(in srgb, var(--bcolor) 45%, transparent);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--bcolor) 20%, transparent) inset;
 }
@@ -123,7 +123,7 @@
   letter-spacing: -0.1px;
   color: var(--text);
 }
-.tab.active .name { color: var(--bcolor, var(--green)); }
+.tab.active .name { color: var(--bcolor, var(--blue)); }
 
 .tagline {
   font-size: 11px;
@@ -191,7 +191,7 @@
 
 .progressFill {
   height: 100%;
-  background: var(--bcolor, var(--green));
+  background: var(--bcolor, var(--blue));
   border-radius: 2px;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
