@@ -338,7 +338,6 @@ export default function App() {
       <footer className={styles.footer}>
         <div>&copy; {new Date().getFullYear()} The KubeKosh Project &bull; All rights reserved</div>
         <div>
-          Made with <span className={styles.heart}>❤️</span> by <a href="https://github.com/zeborg" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>zeborg</a>
         </div>
       </footer>
     </div>
