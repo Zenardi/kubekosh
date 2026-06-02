@@ -32,9 +32,9 @@
 
 .logoText {
   font-family: var(--sans);
-  font-weight: 900;
+  font-weight: 600;
   font-size: 19px;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.4px;
   color: var(--text);
 }
 

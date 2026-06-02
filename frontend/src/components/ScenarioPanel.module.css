@@ -155,7 +155,7 @@
 
 .activeTab {
   color: var(--text);
-  border-bottom-color: var(--green);
+  border-bottom-color: var(--blue);
 }
 
 /* Content */
@@ -299,19 +299,21 @@
 .optionWrong   .optionMark { color: var(--red); }
 
 .submitBtn {
-  background: var(--green);
-  color: #000;
+  background: var(--primary);
+  color: #fff;
   border: none;
   border-radius: var(--radius);
   padding: 10px 22px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   font-family: var(--sans);
   cursor: pointer;
-  transition: opacity 0.15s;
+  box-shadow: 0 2px 16px color-mix(in srgb, var(--primary-glow) 28%, transparent);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
 }
-.submitBtn:hover:not(:disabled) { opacity: 0.85; }
-.submitBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.submitBtn:hover:not(:disabled) { background: var(--primary-active); box-shadow: 0 4px 22px color-mix(in srgb, var(--primary-glow) 45%, transparent); }
+.submitBtn:active:not(:disabled) { transform: translateY(1px); }
+.submitBtn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
 .mcqResult {
   margin-top: 16px;
@@ -380,7 +382,7 @@
 
 .cmdBlock {
   position: relative;
-  background: var(--surface);
+  background: var(--bg-deep);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
@@ -390,7 +392,7 @@
   padding: 12px 14px;
   font-family: var(--mono);
   font-size: 12px;
-  color: var(--green);
+  color: var(--text-2);
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: break-all;
@@ -412,7 +414,7 @@
   font-family: var(--sans);
   transition: all 0.12s;
 }
-.copyBtn:hover { color: var(--text); border-color: var(--green); }
+.copyBtn:hover { color: var(--text); border-color: var(--blue); }
 
 /* Validate */
 .validateHeader {
@@ -429,21 +431,23 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--green);
-  color: #000;
+  background: var(--primary);
+  color: #fff;
   border: none;
   border-radius: var(--radius);
   padding: 9px 18px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   font-family: var(--sans);
   cursor: pointer;
   flex-shrink: 0;
-  transition: opacity 0.15s;
+  box-shadow: 0 2px 16px color-mix(in srgb, var(--primary-glow) 28%, transparent);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
   white-space: nowrap;
 }
-.validateBtn:hover:not(:disabled) { opacity: 0.85; }
-.validateBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.validateBtn:hover:not(:disabled) { background: var(--primary-active); box-shadow: 0 4px 22px color-mix(in srgb, var(--primary-glow) 45%, transparent); }
+.validateBtn:active:not(:disabled) { transform: translateY(1px); }
+.validateBtn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
 .checks { display: flex; flex-direction: column; gap: 6px; }
 

@@ -58,8 +58,8 @@
 .sidebarCount {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--green);
-  background: var(--green-dim);
+  color: var(--blue);
+  background: var(--blue-dim);
   padding: 2px 8px;
   border-radius: 10px;
 }
@@ -224,7 +224,7 @@
 
 .item:hover { background: var(--surface2); }
 
-.item.active { background: rgba(57,217,138,0.07); }
+.item.active { background: color-mix(in srgb, var(--blue) 9%, transparent); box-shadow: inset 2px 0 0 var(--blue); }
 
 .item.done .itemTitle { color: var(--text-2); }
 
@@ -245,7 +245,7 @@
   flex-shrink: 0;
   opacity: 0.7;
 }
-.item.active .itemNum { color: var(--green); opacity: 1; }
+.item.active .itemNum { color: var(--blue); opacity: 1; }
 
 .typeIcon {
   font-size: 12px;
@@ -254,7 +254,7 @@
   margin-top: 1px;
 }
 
-.item.active .typeIcon { color: var(--green); }
+.item.active .typeIcon { color: var(--blue); }
 
 .itemTitle {
   font-size: 13px;

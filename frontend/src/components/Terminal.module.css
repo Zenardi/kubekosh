@@ -5,6 +5,18 @@
   min-height: 0;
   background: var(--term-bg);
   overflow: hidden;
+  position: relative;
+}
+
+/* Electric-blue voltage seam at the top of the terminal — brand signature */
+.wrap::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-glow) 75%, transparent) 50%, transparent);
+  z-index: 3;
+  pointer-events: none;
 }
 
 .bar {
@@ -48,7 +60,7 @@
 }
 
 .barIcon {
-  color: var(--green);
+  color: var(--blue);
   font-weight: 600;
 }
 

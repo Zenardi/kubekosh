@@ -44,7 +44,7 @@
 }
 .sidebarHandle:hover,
 .sidebarHandle:active {
-  background: var(--green);
+  background: var(--blue);
 }
 /* Grip indicator for sidebar */
 .sidebarHandle::before {
@@ -77,7 +77,7 @@
 }
 .termHandle:hover,
 .termHandle:active {
-  background: var(--green);
+  background: var(--blue);
 }
 /* Grip indicator */
 .termHandle::before {
@@ -127,7 +127,7 @@
   transition: color 0.15s;
 }
 .footerLink:hover {
-  color: var(--green);
+  color: var(--blue);
   text-decoration: underline;
 }
 
